@@ -1,0 +1,72 @@
+<head>
+    <title>skibibi calculator</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h1>Sensitivity Calculator</h1>
+    <div class="container">
+        <div class="section">
+            <h3>Sensitivity -> Degrees</h3>
+            <div class="input-group">
+                <label for="sensitivityInput">Enter sensitivity: </label>
+                <input type="text" id="sensitivityInput">
+            </div>
+            <div class="input-group">
+                <label for="resultOutput">Result: </label>
+                <input type="text" id="resultOutput" readonly>
+            </div>
+        </div>
+        <div class="section">
+            <h3>Degrees -> Sensitivity</h3>
+            <div class="input-group">
+                <label for="degreesInput">Enter degrees: </label>
+                <input type="text" id="degreesInput">
+            </div>
+            <div class="input-group output-group">
+                <label for="sensitivityOutput">Result: </label>
+                <input type="text" id="sensitivityOutput" class="long" readonly>
+                <input type="text" id="pixelTurnsOutput" class="small" readonly>
+            </div>
+        </div>
+    </div>
+    <div class="gif-container">
+        <img src="assets/anger.jpg" alt="Him">
+    </div>
+</body>
+<script>
+    const degreeConstant = 25/9
+    function calculateDegrees(sensitivity) {
+        return sensitivity / degreeConstant;
+    }
+    function calculateSensitivity(degrees) {
+        let originalDegrees = degrees;
+        let sensitivity = degrees * degreeConstant;
+        if (sensitivity > 100) {
+            let factor = Math.ceil(Math.log2(sensitivity / 100));
+            sensitivity /= (2 ** factor);
+        }
+        let newDegrees = calculateDegrees(sensitivity);
+        let pixelTurns = Math.ceil(originalDegrees / newDegrees);
+
+        return [sensitivity, pixelTurns];
+    }
+    document.getElementById('sensitivityInput').addEventListener('input', function() { // Sensitivity -> Degrees
+        let sensitivity = parseFloat(this.value);
+        if (isNaN(sensitivity)) {
+            document.getElementById('resultOutput').value = 'NaN°';
+            return;
+        }
+        document.getElementById('resultOutput').value = calculateDegrees(sensitivity).toFixed(8) + '°';
+    });
+    document.getElementById('degreesInput').addEventListener('input', function() { // Degrees -> Sensitivity
+        let degrees = parseFloat(this.value);
+        if (isNaN(degrees)) {
+            document.getElementById('sensitivityOutput').value = 'NaN°';
+            document.getElementById('pixelTurnsOutput').value = 'NaN';
+            return;
+        }
+        let [sensitivity, pixelTurns] = calculateSensitivity(degrees);
+        document.getElementById('sensitivityOutput').value = sensitivity.toFixed(8) + '°';
+        document.getElementById('pixelTurnsOutput').value = pixelTurns;
+    });
+</script>
