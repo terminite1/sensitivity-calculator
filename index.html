@@ -144,9 +144,9 @@
         if (!isValidInput(degrees)) {
             errorElement.textContent = "Please enter a valid number.";
             document.getElementById('sensitivityOutput').value = '';
-            // document.getElementById('pixelTurnsOutput').value = '';
+            document.getElementById('pixelTurnsOutput').value = '';
             document.getElementById('sensitivityNoCamfixOutput').value = '';
-            // document.getElementById('cambugPixelTurnsOutput').value = '';
+            document.getElementById('cambugPixelTurnsOutput').value = '';
             return;
         } else {
             errorElement.textContent = "";
@@ -155,9 +155,9 @@
         let [sensitivity, pixelTurns, cambugSensitivity, cambugPixelTurns] = calculateSensitivity(degrees);
 
         document.getElementById('sensitivityOutput').value = sensitivity.toFixed(8);
-        // document.getElementById('pixelTurnsOutput').value = pixelTurns;
+        document.getElementById('pixelTurnsOutput').value = pixelTurns;
         document.getElementById('sensitivityNoCamfixOutput').value = cambugSensitivity.toFixed(8);
-        // document.getElementById('cambugPixelTurnsOutput').value = cambugPixelTurns;
+        document.getElementById('cambugPixelTurnsOutput').value = cambugPixelTurns;
     }
 
     function handleSensitivityAltInput() {
