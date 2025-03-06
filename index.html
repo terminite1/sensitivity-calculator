@@ -133,7 +133,7 @@
             errorElement.textContent = "";
         }
         document.getElementById('resultOutput').value = calculateDegrees(sensitivity).toFixed(8) + '°';
-        document.getElementById('resultOutputAlt').value = (calculateDegrees(sensitivity) * noCamFixConstant).toFixed(8) + '°';
+        document.getElementById('resultOutputAlt').value = (calculateDegrees(sensitivity) / noCamFixConstant).toFixed(8) + '°';
     }
 
     function handleDegreesInput() {
