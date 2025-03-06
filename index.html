@@ -6,70 +6,187 @@
 </head>
 <body>
     <h1>Sensitivity Calculator</h1>
+    <div id="gradient-thing"></div>
     <div class="container">
         <div class="section">
-            <h3>Sensitivity -> Degrees</h3>
+            <h3>Sensitivity → Degrees</h3>
             <div class="input-group">
                 <label for="sensitivityInput">Enter sensitivity: </label>
                 <input type="text" id="sensitivityInput">
+                <p id="sensitivityInputError" class="error-message"></p>
             </div>
             <div class="input-group">
                 <label for="resultOutput">Result: </label>
                 <input type="text" id="resultOutput" readonly>
             </div>
+             <div class="input-group">
+                <label for="resultOutputAlt">No camfix: </label>
+                <input type="text" id="resultOutputAlt" readonly>
+            </div>
         </div>
         <div class="section">
-            <h3>Degrees -> Sensitivity</h3>
+            <h3>Degrees → Sensitivity</h3>
             <div class="input-group">
                 <label for="degreesInput">Enter degrees: </label>
                 <input type="text" id="degreesInput">
+                <p id="degreesInputError" class="error-message"></p>
             </div>
             <div class="input-group output-group">
                 <label for="sensitivityOutput">Result: </label>
                 <input type="text" id="sensitivityOutput" class="long" readonly>
                 <input type="text" id="pixelTurnsOutput" class="small" readonly>
             </div>
+            <div class="input-group output-group">
+                <label for="sensitivityNoCamfixOutput">No camfix: </label>
+                <input type="text" id="sensitivityNoCamfixOutput" class="long" readonly>
+                <input type="text" id="cambugPixelTurnsOutput" class="small" readonly>
+            </div>
+        </div>
+        <div class="section">
+            <h3>Sensitivity → Bugged Sensitivity</h3>
+            <div class="input-group">
+                <label for="sensitivityAlt">Enter sensitivity: </label>
+                <input type="text" id="sensitivityAlt">
+                 <p id="sensitivityAltError" class="error-message"></p>
+            </div>
+            <div class="input-group">
+                <label for="sensitivityAltOutput">Result: </label>
+                <input type="text" id="sensitivityAltOutput" class="long" readonly>
+                <p>
+                    This converts EToH Kit camera module sensitivity to a no camera module value equivalent
+                </p>
+            </div>
         </div>
     </div>
     <div class="gif-container">
         <img src="assets/anger.jpg" alt="Him">
+        <img src="assets/coweggs.webp" alt="Him (Egg)">
+        <img src="assets/chess.jpg" alt="Him (chess)">
+        <div class="click-effects-container"></div>
     </div>
 </body>
 <script>
-    const degreeConstant = 25/9
+    /*
+        You are entering a very scary place
+        I am sorry for what you are about to see
+        But it gets the job done
+        And that's all that matters
+    */
+    const degreeConstant = 25/9;
+    const noCamFixConstant = 18/25;
+    const camFactor = degreeConstant * noCamFixConstant;
+
     function calculateDegrees(sensitivity) {
         return sensitivity / degreeConstant;
     }
-    function calculateSensitivity(degrees) {
-        let originalDegrees = degrees;
-        let sensitivity = degrees * degreeConstant;
-        if (sensitivity > 100) {
-            let factor = Math.ceil(Math.log2(sensitivity / 100));
-            sensitivity /= (2 ** factor);
-        }
-        let newDegrees = calculateDegrees(sensitivity);
-        let pixelTurns = Math.ceil(originalDegrees / newDegrees);
 
-        return [sensitivity, pixelTurns];
+    function calculatePixelTurns(degrees, sensitivity) {
+        let tempSensitivity = sensitivity;
+        let factor = 0;
+
+        if (tempSensitivity > 100) {
+            factor = Math.ceil(Math.log2(tempSensitivity / 100));
+            tempSensitivity /= (2 ** factor);
+        }
+
+        return Math.ceil(degrees / calculateDegrees(tempSensitivity));
     }
-    document.getElementById('sensitivityInput').addEventListener('input', function() { // Sensitivity -> Degrees
-        let sensitivity = parseFloat(this.value);
-        if (isNaN(sensitivity)) {
-            document.getElementById('resultOutput').value = 'NaN°';
+
+    function calculateSensitivity(degrees) {
+        // this code is a mess
+        let sensitivity = degrees * degreeConstant;
+        let cambugSensitivity = degrees * camFactor;
+
+        let tempSensitivity = sensitivity;
+        let sensitivityFactor = 0;
+         if (tempSensitivity > 100) {
+            sensitivityFactor = Math.ceil(Math.log2(tempSensitivity / 100));
+            tempSensitivity /= (2 ** sensitivityFactor);
+         }
+
+        let tempCambugSensitivity = cambugSensitivity;
+        let cambugSensitivityFactor = 0;
+        if(tempCambugSensitivity > 100) {
+            cambugSensitivityFactor = Math.ceil(Math.log2(tempCambugSensitivity / 100));
+            tempCambugSensitivity /= (2 ** cambugSensitivityFactor);
+        }
+
+        let pixelTurns = calculatePixelTurns(degrees, sensitivity);
+        let cambugPixelTurns = calculatePixelTurns(degrees, cambugSensitivity);
+
+        return [tempSensitivity, pixelTurns, tempCambugSensitivity, cambugPixelTurns];
+    }
+
+    function isValidInput(value) {
+        // 😭
+        return !isNaN(value);
+    }
+
+    function handleSensitivityInput() {
+        let sensitivityInput = document.getElementById('sensitivityInput');
+        let sensitivity = parseFloat(sensitivityInput.value);
+        let errorElement = document.getElementById('sensitivityInputError');
+
+        if (!isValidInput(sensitivity)) {
+            errorElement.textContent = "Please enter a valid number.";
+            document.getElementById('resultOutput').value = '';
+            document.getElementById('resultOutputAlt').value = '';
             return;
+        } else {
+            errorElement.textContent = "";
         }
         document.getElementById('resultOutput').value = calculateDegrees(sensitivity).toFixed(8) + '°';
-    });
-    document.getElementById('degreesInput').addEventListener('input', function() { // Degrees -> Sensitivity
-        let degrees = parseFloat(this.value);
-        if (isNaN(degrees)) {
-            document.getElementById('sensitivityOutput').value = 'NaN°';
-            document.getElementById('pixelTurnsOutput').value = 'NaN';
+        document.getElementById('resultOutputAlt').value = (calculateDegrees(sensitivity) * noCamFixConstant).toFixed(8) + '°';
+    }
+
+    function handleDegreesInput() {
+        let degreesInput = document.getElementById('degreesInput');
+        let degrees = parseFloat(degreesInput.value);
+        let errorElement = document.getElementById('degreesInputError');
+
+        if (!isValidInput(degrees)) {
+            errorElement.textContent = "Please enter a valid number.";
+            document.getElementById('sensitivityOutput').value = '';
+            document.getElementById('pixelTurnsOutput').value = '';
+            document.getElementById('sensitivityNoCamfixOutput').value = '';
+            document.getElementById('cambugPixelTurnsOutput').value = '';
             return;
+        } else {
+            errorElement.textContent = "";
         }
-        let [sensitivity, pixelTurns] = calculateSensitivity(degrees);
-        document.getElementById('sensitivityOutput').value = sensitivity.toFixed(8) + '°';
+
+        let [sensitivity, pixelTurns, cambugSensitivity, cambugPixelTurns] = calculateSensitivity(degrees);
+
+        document.getElementById('sensitivityOutput').value = sensitivity.toFixed(8);
         document.getElementById('pixelTurnsOutput').value = pixelTurns;
-    });
+        document.getElementById('sensitivityNoCamfixOutput').value = cambugSensitivity.toFixed(8);
+        document.getElementById('cambugPixelTurnsOutput').value = cambugPixelTurns;
+    }
+
+    function handleSensitivityAltInput() {
+        let sensitivityAltInput = document.getElementById('sensitivityAlt');
+        let sensitivity = parseFloat(sensitivityAltInput.value);
+        let errorElement = document.getElementById('sensitivityAltError');
+
+        if (!isValidInput(sensitivity)) {
+            errorElement.textContent = "Please enter a valid number.";
+            document.getElementById('sensitivityAltOutput').value = '';
+            return;
+        } else {
+            errorElement.textContent = "";
+        }
+
+        let result = sensitivity * noCamFixConstant;
+
+        let factor = 0; // i cannot think correctly, i am just repeating this code
+        if(result > 100) {
+            factor = Math.ceil(Math.log2(result / 100));
+            result /= (2 ** factor);
+        }
+        document.getElementById('sensitivityAltOutput').value = result.toFixed(8);
+    }
+
+    document.getElementById('sensitivityInput').addEventListener('input', handleSensitivityInput);
+    document.getElementById('degreesInput').addEventListener('input', handleDegreesInput);
+    document.getElementById('sensitivityAlt').addEventListener('input', handleSensitivityAltInput);
 </script>
-</html>
