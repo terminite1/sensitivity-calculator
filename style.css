@@ -58,7 +58,7 @@ h3 {
 }
 
 input[type="text"] {
-    padding: 10px 12px; /* Slightly larger padding */
+    padding: 10px 12px;
     border: 1px solid #444;
     border-radius: var(--border-radius);
     width: 100%;
@@ -69,7 +69,6 @@ input[type="text"] {
     outline: none;
     font-family: monospace;
     font-size: large;
-    /* Remove height: 30px; */
 }
 
 input[type="text"]:focus {

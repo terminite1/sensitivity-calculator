@@ -76,20 +76,15 @@
     const noCamFixConstant = 18/25;
     const camFactor = degreeConstant * noCamFixConstant;
 
-    function calculateDegrees(sensitivity) {
+    function calculateDegrees(sensitivity, cambugSensitivity = false) { // I FINALLY FIGURED IT OUT
+        if (cambugSensitivity) {
+            return sensitivity / camFactor;
+        }
         return sensitivity / degreeConstant;
     }
 
-    function calculatePixelTurns(degrees, sensitivity) {
-        let tempSensitivity = sensitivity;
-        let factor = 0;
-
-        if (tempSensitivity > 100) {
-            factor = Math.ceil(Math.log2(tempSensitivity / 100));
-            tempSensitivity /= (2 ** factor);
-        }
-
-        return Math.ceil(degrees / calculateDegrees(tempSensitivity));
+    function calculatePixelTurns(degrees, sensitivity, cambugSensitivity = false) { // GET ME OUT OF HERE
+        return Math.ceil(degrees / calculateDegrees(sensitivity, cambugSensitivity));
     }
 
     function calculateSensitivity(degrees) {
@@ -111,8 +106,10 @@
             tempCambugSensitivity /= (2 ** cambugSensitivityFactor);
         }
 
-        let pixelTurns = calculatePixelTurns(degrees, sensitivity);
-        let cambugPixelTurns = calculatePixelTurns(degrees, cambugSensitivity);
+        let newDegrees1 = calculateDegrees(tempSensitivity);
+        let newDegrees2 = calculateDegrees(tempCambugSensitivity, true);
+        let pixelTurns = calculatePixelTurns(degrees, tempSensitivity);
+        let cambugPixelTurns = calculatePixelTurns(degrees, tempCambugSensitivity, true);
 
         return [tempSensitivity, pixelTurns, tempCambugSensitivity, cambugPixelTurns];
     }
@@ -147,9 +144,9 @@
         if (!isValidInput(degrees)) {
             errorElement.textContent = "Please enter a valid number.";
             document.getElementById('sensitivityOutput').value = '';
-            document.getElementById('pixelTurnsOutput').value = '';
+            // document.getElementById('pixelTurnsOutput').value = '';
             document.getElementById('sensitivityNoCamfixOutput').value = '';
-            document.getElementById('cambugPixelTurnsOutput').value = '';
+            // document.getElementById('cambugPixelTurnsOutput').value = '';
             return;
         } else {
             errorElement.textContent = "";
@@ -158,9 +155,9 @@
         let [sensitivity, pixelTurns, cambugSensitivity, cambugPixelTurns] = calculateSensitivity(degrees);
 
         document.getElementById('sensitivityOutput').value = sensitivity.toFixed(8);
-        document.getElementById('pixelTurnsOutput').value = pixelTurns;
+        // document.getElementById('pixelTurnsOutput').value = pixelTurns;
         document.getElementById('sensitivityNoCamfixOutput').value = cambugSensitivity.toFixed(8);
-        document.getElementById('cambugPixelTurnsOutput').value = cambugPixelTurns;
+        // document.getElementById('cambugPixelTurnsOutput').value = cambugPixelTurns;
     }
 
     function handleSensitivityAltInput() {
